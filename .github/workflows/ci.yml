@@ -43,6 +43,8 @@ jobs:
         run: cmake --build build/ci-host --parallel
       - name: Run C++ tests
         run: ctest --test-dir build/ci-host --output-on-failure
+      - name: Install dev-only Pillow for the art checks
+        run: python -m pip install --disable-pip-version-check "pillow==11.0.0"
       - name: Run Python tests
         run: python -B -m unittest discover -v
 

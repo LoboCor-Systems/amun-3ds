@@ -30,6 +30,10 @@ class PluginUiPolicyTests(unittest.TestCase):
     def test_trophy_art_header_matches_studio_pngs(self) -> None:
         import sys
 
+        try:
+            import PIL  # noqa: F401
+        except ImportError:  # pragma: no cover - Pillow is a dev-only dependency
+            self.skipTest("Pillow not installed")
         sys.path.insert(0, str(ROOT / "scripts"))
         from make_trophy_art_header import DEFAULT_OUT, render
 

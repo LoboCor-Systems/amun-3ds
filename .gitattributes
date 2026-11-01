@@ -1,0 +1,3 @@
+# Release hashes (licences, profiles, packs) are computed over LF files, so every
+# checkout, including Windows, must keep LF line endings.
+* text=auto eol=lf
