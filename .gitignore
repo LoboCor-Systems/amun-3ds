@@ -1,0 +1,16 @@
+/build*/
+/dist/
+__pycache__/
+*.py[cod]
+*.pdb
+*.obj
+*.o
+*.elf
+*.3gx
+*.map
+*.amunpack
+*.amuntrace
+*.amunledger
+.vs/
+.vscode/
+.idea/

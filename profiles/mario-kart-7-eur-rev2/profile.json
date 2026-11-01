@@ -1,0 +1,112 @@
+{
+  "schema": 1,
+  "profile": {
+    "version": "0.1.0-hardware-candidate",
+    "license": "CC0-1.0",
+    "authors": ["AMUN contributors"],
+    "provenance": "Original achievement text and logic. The Mario Kart 7 EUR lifetime-coin field at 0x1413C540 was cross-referenced against the archived CTRPF-AR-CHEAT-CODES EUR layout and validated read-only on an original wedge 2DS on 2026-09-02: it read 0 before a normal single-player 50cc Grand Prix, then read 6 while Mario Kart Channel displayed a lifetime total of 6 after the race. Restart stability and another save remain pending.",
+    "integrity": "live_unverified"
+  },
+  "game": {
+    "platform": "3ds",
+    "titleId": "0004000000030700",
+    "name": "Mario Kart 7",
+    "builds": [
+      {
+        "id": "mk7-eur-rev2-2112",
+        "region": "EUR",
+        "applicationVersion": "2112",
+        "updateVersion": "",
+        "codeFingerprint": "live-text-crc32-v1:004EC000:04F718AE",
+        "compatible": false
+      }
+    ]
+  },
+  "symbols": {
+    "save.total_coins": {
+      "type": "u32",
+      "poll": "slow",
+      "resolver": {
+        "kind": "absolute",
+        "address": "0x1413C540"
+      }
+    }
+  },
+  "assets": {},
+  "achievements": [
+    {
+      "id": "pocket_change",
+      "title": "Pocket Change",
+      "description": "Increase your lifetime coin total through normal play.",
+      "points": 5,
+      "author": "AMUN",
+      "category": "collection",
+      "tags": ["coins", "first-live-profile", "research"],
+      "secret": false,
+      "missable": false,
+      "prerequisites": [],
+      "trigger": {
+        "op": "increased",
+        "symbol": "save.total_coins"
+      }
+    }
+  ],
+  "tests": [
+    {
+      "name": "coin total increases after initialization",
+      "frames": [
+        {
+          "timeMs": 0,
+          "values": {
+            "save.total_coins": 0
+          }
+        },
+        {
+          "timeMs": 1000,
+          "values": {
+            "save.total_coins": 6
+          }
+        }
+      ],
+      "expectUnlocked": ["pocket_change"]
+    },
+    {
+      "name": "initial nonzero value does not synthesize an increase",
+      "frames": [
+        {
+          "timeMs": 0,
+          "values": {
+            "save.total_coins": 6
+          }
+        },
+        {
+          "timeMs": 1000,
+          "values": {
+            "save.total_coins": 6
+          }
+        }
+      ],
+      "expectUnlocked": [],
+      "expectLocked": ["pocket_change"]
+    },
+    {
+      "name": "a decrease is not a coin-collection event",
+      "frames": [
+        {
+          "timeMs": 0,
+          "values": {
+            "save.total_coins": 6
+          }
+        },
+        {
+          "timeMs": 1000,
+          "values": {
+            "save.total_coins": 5
+          }
+        }
+      ],
+      "expectUnlocked": [],
+      "expectLocked": ["pocket_change"]
+    }
+  ]
+}

@@ -1,0 +1,199 @@
+name: AMUN CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      cross_compile_3ds:
+        description: Fetch pinned dependencies and cross-compile the unverified 3GX
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: amun-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  host-linux:
+    name: Host, parsers, fuzz smoke, benchmark, package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      SOURCE_DATE_EPOCH: "946684800"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Configure release host build
+        run: >-
+          cmake -S . -B build/ci-host -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DAMUN_BUILD_TESTS=ON
+          -DAMUN_BUILD_TOOLS=ON
+          -DAMUN_BUILD_3DS_PLATFORM_TESTS=ON
+      - name: Build host targets
+        run: cmake --build build/ci-host --parallel
+      - name: Run C++ tests
+        run: ctest --test-dir build/ci-host --output-on-failure
+      - name: Run Python tests
+        run: python -B -m unittest discover -v
+
+      - name: Validate schema and synthetic profile
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          document = json.loads(Path("profiles/schema/profile.schema.json").read_text(encoding="utf-8"))
+          assert document["$schema"].endswith("2020-12/schema")
+          assert document["type"] == "object"
+          PY
+          python amun.py --help >/dev/null
+          python amun.py profile validate profiles/synthetic
+          python amun.py profile test profiles/synthetic
+
+      - name: Validate and test every shipped profile
+        run: |
+          for profile in profiles/*/profile.json; do
+            dir=$(dirname "$profile")
+            python amun.py profile validate "$dir"
+            python amun.py profile test "$dir"
+          done
+          python scripts/make_mk7_stable_profile.py --out artifacts-stable-check.json
+          cmp artifacts-stable-check.json profiles/mario-kart-7-eur/profile.json
+
+      - name: Prove deterministic pack output
+        run: |
+          mkdir -p artifacts
+          python amun.py profile build profiles/synthetic -o artifacts/synthetic-a.amunpack
+          python amun.py profile build profiles/synthetic -o artifacts/synthetic-b.amunpack
+          cmp artifacts/synthetic-a.amunpack artifacts/synthetic-b.amunpack
+          sha256sum artifacts/synthetic-a.amunpack > artifacts/synthetic.sha256
+          python amun.py pack inspect artifacts/synthetic-a.amunpack --disassemble > artifacts/synthetic-pack.txt
+
+      - name: Configure standalone fuzz smoke
+        run: >-
+          cmake -S . -B build/ci-fuzz -G Ninja
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          -DAMUN_BUILD_TESTS=ON
+          -DAMUN_BUILD_TOOLS=OFF
+          -DAMUN_BUILD_3DS_PLATFORM_TESTS=OFF
+          -DAMUN_BUILD_FUZZERS=ON
+          -DAMUN_USE_LIBFUZZER=OFF
+      - name: Run C++ and Python fuzz smoke
+        run: |
+          cmake --build build/ci-fuzz --parallel
+          ctest --test-dir build/ci-fuzz --output-on-failure -R '^amun-fuzz-.*-smoke$'
+          python -B tests/fuzz/fuzz_python_parsers.py
+
+      - name: Capture host benchmark
+        run: ./build/ci-host/amun-bench | tee artifacts/host-benchmark.csv
+
+      - name: Stage and reproduce host-tools release
+        run: |
+          python scripts/package-release.py --version 0.1.0 --replace \
+            --pack 000400000FF40A00=artifacts/synthetic-a.amunpack
+          sha256sum dist/release/AMUN-3DS-v0.1.0.zip > artifacts/release-first.sha256
+          (cd dist/release/AMUN-3DS-v0.1.0 && sha256sum -c SHA256SUMS)
+          python scripts/package-release.py --version 0.1.0 --replace \
+            --pack 000400000FF40A00=artifacts/synthetic-a.amunpack
+          sha256sum -c artifacts/release-first.sha256
+
+      - name: Upload host evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: amun-host-evidence-${{ github.sha }}
+          path: |
+            artifacts/
+            dist/release/AMUN-3DS-v0.1.0.zip
+            dist/release/AMUN-3DS-v0.1.0/release.json
+            dist/release/AMUN-3DS-v0.1.0/SHA256SUMS
+          if-no-files-found: error
+
+  host-windows:
+    name: Windows host and PowerShell package smoke
+    runs-on: windows-2022
+    timeout-minutes: 25
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      SOURCE_DATE_EPOCH: "946684800"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Configure and build
+        shell: pwsh
+        run: |
+          cmake -S . -B build/ci-windows -G "Visual Studio 17 2022" -A x64 -DAMUN_BUILD_TESTS=ON -DAMUN_BUILD_TOOLS=ON -DAMUN_BUILD_3DS_PLATFORM_TESTS=ON
+          if ($LASTEXITCODE -ne 0) { throw "configure failed" }
+          cmake --build build/ci-windows --config Release --parallel
+          if ($LASTEXITCODE -ne 0) { throw "build failed" }
+      - name: Test C++ and Python
+        shell: pwsh
+        run: |
+          ctest --test-dir build/ci-windows -C Release --output-on-failure
+          if ($LASTEXITCODE -ne 0) { throw "C++ tests failed" }
+          python -B -m unittest discover -v
+          if ($LASTEXITCODE -ne 0) { throw "Python tests failed" }
+      - name: Profile and PowerShell package smoke
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force artifacts | Out-Null
+          python amun.py profile test profiles/synthetic
+          python amun.py profile build profiles/synthetic -o artifacts/synthetic.amunpack
+          ./scripts/package-release.ps1 -Version 0.1.0 -Pack "000400000FF40A00=artifacts/synthetic.amunpack" -Replace
+
+  cross-compile-3ds:
+    name: Optional pinned 3DS cross-build (not hardware tested)
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.cross_compile_3ds == true }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    container:
+      image: devkitpro/devkitarm@sha256:116afba8df8453961de2936ffab20dd441edf4d682856c1ec8b0e53d7ed0bbf5
+    env:
+      AMUN_DEPS_DIR: ${{ github.workspace }}/build/ci-3ds-deps
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show pinned toolchain
+        shell: bash
+        run: |
+          echo "DEVKITARM=$DEVKITARM"
+          arm-none-eabi-g++ --version | head -n 1
+          cmake --version | head -n 1
+      - name: Fetch and patch exact community dependencies
+        shell: bash
+        run: cmake -DAMUN_DEPS_DIR="$AMUN_DEPS_DIR" -P cmake/3ds/fetch_pinned_dependencies.cmake
+      - name: Build pinned dependencies
+        shell: bash
+        run: cmake -DAMUN_DEPS_DIR="$AMUN_DEPS_DIR" -DAMUN_BUILD_JOBS=4 -P cmake/3ds/build_pinned_dependencies.cmake
+      - name: Cross-link and validate 3GX
+        shell: bash
+        run: |
+          make -C 3ds AMUN_DEPS_DIR="$AMUN_DEPS_DIR" -j4
+          cmake -DAMUN_3GX="$GITHUB_WORKSPACE/3ds/AMUN.3gx" -P cmake/3ds/verify_3gx.cmake
+          make -C 3ds package AMUN_DEPS_DIR="$AMUN_DEPS_DIR"
+      - name: Stage cross-build evidence
+        shell: bash
+        run: |
+          mkdir -p artifacts/3ds
+          cp 3ds/AMUN.3gx 3ds/AMUN.elf 3ds/AMUN.map artifacts/3ds/
+          cp LICENSE LICENSES/CTRPluginFramework-LICENSE.txt LICENSES/libctru-LICENSE.txt THIRD_PARTY_NOTICES.md artifacts/3ds/
+          cp -R cmake/3ds/patches artifacts/3ds/dependency-patches
+          (cd artifacts/3ds && sha256sum AMUN.3gx AMUN.elf AMUN.map > SHA256SUMS)
+          printf '%s\n' 'CROSS-COMPILED: yes' 'HARDWARE-TESTED: no' > artifacts/3ds/STATUS.txt
+      - name: Upload unverified 3DS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: amun-3ds-cross-build-unverified-${{ github.sha }}
+          path: |
+            artifacts/3ds/
+            dist/sd-root/
+          if-no-files-found: error

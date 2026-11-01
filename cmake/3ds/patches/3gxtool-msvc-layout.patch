@@ -1,0 +1,52 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -40,5 +40,7 @@
+ 
+ set(CMAKE_CXX_STANDARD 14)
+-set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
++if(NOT MSVC)
++    set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
++endif()
+ 
+ include_directories(includes)
+diff --git a/includes/types.hpp b/includes/types.hpp
+--- a/includes/types.hpp
++++ b/includes/types.hpp
+@@ -36,4 +36,8 @@
+ /// Packs a struct (and other types?) so it won't include padding bytes.
++#ifdef _MSC_VER
++#define PACKED /* 3gx.hpp uses scoped pragma pack on MSVC. */
++#else
+ #define PACKED     __attribute__((packed))
++#endif
+ 
+ 
+diff --git a/includes/3gx.hpp b/includes/3gx.hpp
+--- a/includes/3gx.hpp
++++ b/includes/3gx.hpp
+@@ -1,5 +1,9 @@
+ #pragma once
+ 
+ #include "types.hpp"
++
++#ifdef _MSC_VER
++#pragma pack(push, 1)
++#endif
+ 
+ #define _3GX_MAGIC (0x3230303024584733) /* "3GX$0002" */
+@@ -98,3 +102,14 @@
+     _3gx_Targets    targets{};
+     _3gx_Symtable   symtable{};
+ } PACKED;
++
++#ifdef _MSC_VER
++#pragma pack(pop)
++#endif
++
++static_assert(sizeof(_3gx_Infos) == 72, "3GX info layout");
++static_assert(sizeof(_3gx_Targets) == 8, "3GX target layout");
++static_assert(sizeof(_3gx_Symbol) == 12, "3GX symbol layout");
++static_assert(sizeof(_3gx_Symtable) == 12, "3GX symbol table layout");
++static_assert(sizeof(_3gx_Executable) == 40, "3GX executable layout");
++static_assert(sizeof(_3gx_Header) == 148, "3GX header layout");

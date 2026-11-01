@@ -1,0 +1,40 @@
+diff --git a/Library/include/CTRPluginFramework/System/FwkSettings.hpp b/Library/include/CTRPluginFramework/System/FwkSettings.hpp
+--- a/Library/include/CTRPluginFramework/System/FwkSettings.hpp
++++ b/Library/include/CTRPluginFramework/System/FwkSettings.hpp
+@@ -18,11 +18,13 @@ namespace CTRPluginFramework
+         u32     isDefaultPlugin;
+         s32*    plgldrEvent; ///< Used for synchronization
+         s32*    plgldrReply; ///< Used for synchronization
+         u8      notifyHomeEvent;
+-        u8      padding[3];
+-        u32     reserved[23];
++        u8      padding[7];
++        u64     waitForReplyTimeout;
++        u32     reserved[20];
+         u32     config[32];
+     };
++    static_assert(__builtin_offsetof(PluginHeader, config) == 0x80, "Luma v13.4 PluginHeader ABI mismatch");
+ 
+     struct FwkSettings
+     {
+diff --git a/Library/include/plgldr.h b/Library/include/plgldr.h
+--- a/Library/include/plgldr.h
++++ b/Library/include/plgldr.h
+@@ -48,9 +48,16 @@ typedef struct
+     s32*            plgldrEvent; ///< Used for synchronization
+     s32*            plgldrReply; ///< Used for synchronization
+     u8              notifyHomeEvent;
+-    u8              padding[3];
++    u8              padding[7];
++    u64             waitForReplyTimeout;
++    u32             reserved[20];
+     u32             config[32];
+ }   PluginHeader;
++#ifdef __cplusplus
++static_assert(__builtin_offsetof(PluginHeader, config) == 0x80, "Luma v13.4 PluginHeader ABI mismatch");
++#else
++_Static_assert(__builtin_offsetof(PluginHeader, config) == 0x80, "Luma v13.4 PluginHeader ABI mismatch");
++#endif
+ 
+ typedef void (*OnPlgLdrEventCb_t)(s32 eventType);
+ 

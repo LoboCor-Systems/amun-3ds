@@ -1,0 +1,43 @@
+diff --git a/includes/3gx.hpp b/includes/3gx.hpp
+--- a/includes/3gx.hpp
++++ b/includes/3gx.hpp
+@@ -24,7 +24,8 @@ struct _3gx_Infos
+             u32     eventsSelfManaged : 1;
+             u32     swapNotNeeded : 1;
+             u32     usePrivateMemory : 1;
+-            u32     unused : 23;
++            u32     allowHomebrewLoad : 1;
++            u32     unused : 22;
+         };
+     };
+     u32             exeDecChecksum{0};
+diff --git a/sources/main.cpp b/sources/main.cpp
+--- a/sources/main.cpp
++++ b/sources/main.cpp
+@@ -134,6 +134,18 @@ bool    GetUsePrivateMemory(YAML::Node& settings)
+     return false;
+ }
+ 
++bool    GetAllowHomebrewLoad(YAML::Node& settings)
++{
++    if (settings["AllowHomebrewLoad"])
++    {
++        std::string value = settings["AllowHomebrewLoad"].as<std::string>();
++        std::transform(value.begin(), value.end(), value.begin(),
++            [](unsigned char c){ return std::tolower(c);});
++        return value == "true";
++    }
++    return false;
++}
++
+ bool    GetSwapNotNeeded(YAML::Node& settings)
+ {
+     if (settings["SwapNotNeeded"])
+@@ -205,6 +217,7 @@ int     main(int argc, const char **argv)
+         header.infos.eventsSelfManaged = static_cast<u32>(GetEventsSelfManaged(settings));
+         header.infos.swapNotNeeded = static_cast<u32>(GetSwapNotNeeded(settings));
+         header.infos.usePrivateMemory = static_cast<u32>(GetUsePrivateMemory(settings));
++        header.infos.allowHomebrewLoad = static_cast<u32>(GetAllowHomebrewLoad(settings));
+ 
+         if (!g_silentMode)
+             std::cout << "Creating file..." << std::endl;

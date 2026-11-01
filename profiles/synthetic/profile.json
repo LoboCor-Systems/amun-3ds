@@ -1,0 +1,537 @@
+{
+  "schema": 1,
+  "profile": {
+    "version": "1.0.0",
+    "license": "CC0-1.0",
+    "authors": ["AMUN contributors"],
+    "provenance": "Fully synthetic values for host and hardware self-testing; no commercial-game addresses.",
+    "integrity": "developer"
+  },
+  "game": {
+    "platform": "3ds",
+    "titleId": "000400000FF40A00",
+    "name": "AMUN Synthetic Adventure",
+    "builds": [
+      {
+        "id": "synthetic-eur-v1",
+        "region": "EUR",
+        "applicationVersion": "1.0.0",
+        "updateVersion": "0",
+        "codeFingerprint": "live-text-crc32-v1:00123000:89ABCDEF",
+        "compatible": false
+      }
+    ]
+  },
+  "symbols": {
+    "battle.id": {
+      "type": "u8",
+      "poll": "normal",
+      "resolver": {"kind": "module_relative", "offset": "0x00002000"}
+    },
+    "boss.hp": {
+      "type": "s32",
+      "poll": "fast",
+      "resolver": {"kind": "absolute", "address": "0x08001010"}
+    },
+    "challenge.healed": {
+      "type": "u8",
+      "poll": "fast",
+      "resolver": {"kind": "absolute", "address": "0x08001020"}
+    },
+    "collectibles.count": {
+      "type": "u16",
+      "poll": "normal",
+      "resolver": {"kind": "absolute", "address": "0x08001030"}
+    },
+    "inventory.key_count": {
+      "type": "u16",
+      "poll": "slow",
+      "resolver": {
+        "kind": "pointer_chain",
+        "address": "0x08002000",
+        "offsets": [0, 32, 8]
+      }
+    },
+    "player.hp": {
+      "type": "u16",
+      "poll": "fast",
+      "resolver": {"kind": "absolute", "address": "0x08001000"}
+    },
+    "player.hp_percent": {
+      "type": "u32",
+      "poll": "normal",
+      "resolver": {
+        "kind": "derived",
+        "expression": {
+          "op": "divide",
+          "left": {
+            "op": "multiply",
+            "left": {"symbol": "player.hp"},
+            "right": 100
+          },
+          "right": {"symbol": "player.max_hp"}
+        }
+      }
+    },
+    "player.max_hp": {
+      "type": "u16",
+      "poll": "static",
+      "resolver": {"kind": "absolute", "address": "0x08001002"}
+    },
+    "session.paused": {
+      "type": "bool",
+      "poll": "fast",
+      "resolver": {"kind": "absolute", "address": "0x08001024"}
+    },
+    "state.name": {
+      "type": "fixed_string",
+      "size": 8,
+      "poll": "slow",
+      "resolver": {"kind": "absolute", "address": "0x08001040"}
+    },
+    "world.flags": {
+      "type": "u32",
+      "poll": "normal",
+      "resolver": {
+        "kind": "pattern",
+        "scanStart": "0x00100000",
+        "scanSize": "0x00040000",
+        "resultOffset": 12,
+        "pattern": "E3 A0 ?? ?? E5 9F 00 04"
+      }
+    }
+  },
+  "assets": {
+    "icon.boss": {
+      "kind": "icon",
+      "format": "rgb565",
+      "compression": "byte_rle",
+      "width": 2,
+      "height": 2,
+      "data": "00 F8 00 F8 E0 07 E0 07"
+    }
+  },
+  "achievements": [
+    {
+      "id": "ready_state",
+      "title": "Ready to Begin",
+      "description": "Enter the synthetic READY state.",
+      "points": 1,
+      "author": "AMUN",
+      "category": "story",
+      "tags": ["synthetic", "bytes"],
+      "secret": false,
+      "missable": false,
+      "prerequisites": [],
+      "trigger": {
+        "op": "eq",
+        "left": {"symbol": "state.name"},
+        "right": {"bytes": "52 45 41 44 59 00 00 00"}
+      }
+    },
+    {
+      "id": "first_boss",
+      "title": "Synthetic Victory",
+      "description": "Defeat the synthetic boss while remaining alive.",
+      "points": 5,
+      "icon": "icon.boss",
+      "author": "AMUN",
+      "category": "combat",
+      "tags": ["synthetic", "edge"],
+      "secret": false,
+      "missable": false,
+      "prerequisites": [],
+      "trigger": {
+        "op": "rising",
+        "condition": {
+          "all": [
+            {"op": "eq", "symbol": "boss.hp", "value": 0},
+            {"op": "gt", "symbol": "player.hp", "value": 0},
+            {"op": "eq", "symbol": "battle.id", "value": 7}
+          ]
+        }
+      }
+    },
+    {
+      "id": "no_healing",
+      "title": "No Safety Net",
+      "description": "Defeat the synthetic boss without healing.",
+      "points": 10,
+      "author": "AMUN",
+      "category": "challenge",
+      "tags": ["synthetic", "reset"],
+      "secret": false,
+      "missable": true,
+      "prerequisites": [],
+      "trigger": {
+        "op": "reset_if",
+        "condition": {
+          "op": "rising",
+          "condition": {"op": "eq", "symbol": "boss.hp", "value": 0}
+        },
+        "reset": {"op": "increased", "symbol": "challenge.healed"}
+      }
+    },
+    {
+      "id": "collector",
+      "title": "Three of a Kind",
+      "description": "Collect all three synthetic tokens.",
+      "points": 5,
+      "author": "AMUN",
+      "category": "collection",
+      "tags": ["synthetic", "progress"],
+      "secret": false,
+      "missable": false,
+      "prerequisites": [],
+      "trigger": {"op": "set_progress", "symbol": "collectibles.count", "target": 3}
+    },
+    {
+      "id": "healthy_finish",
+      "title": "Plenty Left",
+      "description": "Finish with at least 75 percent health after the first victory.",
+      "points": 5,
+      "author": "AMUN",
+      "category": "challenge",
+      "tags": ["synthetic", "derived"],
+      "secret": true,
+      "missable": false,
+      "prerequisites": ["first_boss"],
+      "trigger": {"op": "ge", "symbol": "player.hp_percent", "value": 75}
+    },
+    {
+      "id": "ordered_victory",
+      "title": "In the Right Order",
+      "description": "Enter battle, then defeat the boss.",
+      "points": 5,
+      "author": "AMUN",
+      "category": "combat",
+      "tags": ["synthetic", "sequence"],
+      "secret": false,
+      "missable": false,
+      "prerequisites": [],
+      "trigger": {
+        "op": "sequence",
+        "conditions": [
+          {"op": "eq", "symbol": "battle.id", "value": 7},
+          {"op": "eq", "symbol": "boss.hp", "value": 0}
+        ]
+      }
+    },
+    {
+      "id": "flag_found",
+      "title": "A Flag in the Sand",
+      "description": "Observe synthetic world flag bit three.",
+      "points": 2,
+      "author": "AMUN",
+      "category": "exploration",
+      "tags": ["synthetic", "bitmask", "pattern"],
+      "secret": false,
+      "missable": false,
+      "prerequisites": [],
+      "trigger": {"op": "bit_set", "symbol": "world.flags", "mask": 8}
+    },
+    {
+      "id": "world_shifted",
+      "title": "The World Moved",
+      "description": "Observe any change to the synthetic world flags.",
+      "points": 2,
+      "author": "AMUN",
+      "category": "exploration",
+      "tags": ["synthetic", "changed"],
+      "secret": false,
+      "missable": false,
+      "prerequisites": [],
+      "trigger": {"op": "changed", "symbol": "world.flags"}
+    },
+    {
+      "id": "key_spent",
+      "title": "The Right Key",
+      "description": "Spend a key found through the synthetic pointer chain.",
+      "points": 3,
+      "author": "AMUN",
+      "category": "story",
+      "tags": ["synthetic", "pointer-chain", "previous", "decreased"],
+      "secret": false,
+      "missable": false,
+      "prerequisites": [],
+      "trigger": {
+        "all": [
+          {"op": "decreased", "symbol": "inventory.key_count"},
+          {
+            "op": "gt",
+            "left": {"symbol": "inventory.key_count", "state": "previous"},
+            "right": {"symbol": "inventory.key_count"}
+          }
+        ]
+      }
+    },
+    {
+      "id": "first_pickup",
+      "title": "Something New",
+      "description": "Increase the synthetic collectible count.",
+      "points": 2,
+      "author": "AMUN",
+      "category": "collection",
+      "tags": ["synthetic", "increased"],
+      "secret": false,
+      "missable": false,
+      "prerequisites": [],
+      "trigger": {"op": "increased", "symbol": "collectibles.count"}
+    },
+    {
+      "id": "battle_exit",
+      "title": "Stand Down",
+      "description": "Leave synthetic battle seven on a falling edge.",
+      "points": 2,
+      "author": "AMUN",
+      "category": "combat",
+      "tags": ["synthetic", "falling"],
+      "secret": false,
+      "missable": false,
+      "prerequisites": [],
+      "trigger": {
+        "op": "falling",
+        "condition": {"op": "eq", "symbol": "battle.id", "value": 7}
+      }
+    },
+    {
+      "id": "triple_encounter",
+      "title": "Third Time's the Charm",
+      "description": "Enter synthetic encounter nine three separate times.",
+      "points": 4,
+      "author": "AMUN",
+      "category": "combat",
+      "tags": ["synthetic", "hit-count"],
+      "secret": false,
+      "missable": false,
+      "prerequisites": [],
+      "trigger": {
+        "op": "hit_count",
+        "count": 3,
+        "condition": {"op": "eq", "symbol": "battle.id", "value": 9}
+      }
+    },
+    {
+      "id": "timed_trial",
+      "title": "Hold the Line",
+      "description": "Remain in synthetic trial eight for half a second.",
+      "points": 4,
+      "author": "AMUN",
+      "category": "challenge",
+      "tags": ["synthetic", "duration", "monotonic"],
+      "secret": false,
+      "missable": false,
+      "prerequisites": [],
+      "trigger": {
+        "op": "duration",
+        "milliseconds": 500,
+        "condition": {"op": "eq", "symbol": "battle.id", "value": 8}
+      }
+    },
+    {
+      "id": "pause_aware_victory",
+      "title": "Wait for It",
+      "description": "Defeat the synthetic variant boss after evaluation resumes.",
+      "points": 6,
+      "author": "AMUN",
+      "category": "challenge",
+      "tags": ["synthetic", "pause", "boss-variant"],
+      "secret": false,
+      "missable": false,
+      "prerequisites": [],
+      "trigger": {
+        "op": "pause_if",
+        "condition": {
+          "op": "rising",
+          "condition": {
+            "all": [
+              {"op": "eq", "symbol": "battle.id", "value": 6},
+              {"op": "eq", "symbol": "boss.hp", "value": 0}
+            ]
+          }
+        },
+        "pause": {"op": "eq", "symbol": "session.paused", "value": 1}
+      }
+    }
+  ],
+  "tests": [
+    {
+      "name": "complete synthetic session",
+      "frames": [
+        {
+          "timeMs": 0,
+          "values": {
+            "battle.id": 0,
+            "boss.hp": 50,
+            "challenge.healed": 0,
+            "collectibles.count": 0,
+            "inventory.key_count": 2,
+            "player.hp": 100,
+            "player.max_hp": 100,
+            "session.paused": 0,
+            "state.name": "READY",
+            "world.flags": 0
+          }
+        },
+        {
+          "timeMs": 100,
+          "values": {
+            "battle.id": 7,
+            "boss.hp": 50,
+            "collectibles.count": 2,
+            "inventory.key_count": 1,
+            "player.hp": 80,
+            "world.flags": 8
+          }
+        },
+        {
+          "timeMs": 200,
+          "values": {"boss.hp": 0, "collectibles.count": 3}
+        },
+        {
+          "timeMs": 300,
+          "values": {"battle.id": 0}
+        }
+      ],
+      "expectUnlocked": [
+        "ready_state", "first_boss", "no_healing", "collector", "healthy_finish",
+        "ordered_victory", "flag_found", "world_shifted", "key_spent",
+        "first_pickup", "battle_exit"
+      ],
+      "expectLocked": ["triple_encounter", "timed_trial", "pause_aware_victory"],
+      "expectProgress": {"collector": 3}
+    },
+    {
+      "name": "healing resets challenge",
+      "frames": [
+        {
+          "timeMs": 0,
+          "values": {
+            "battle.id": 0,
+            "boss.hp": 50,
+            "challenge.healed": 0,
+            "collectibles.count": 0,
+            "inventory.key_count": 0,
+            "player.hp": 100,
+            "player.max_hp": 100,
+            "session.paused": 0,
+            "state.name": "READY",
+            "world.flags": 0
+          }
+        },
+        {
+          "timeMs": 100,
+          "values": {
+            "battle.id": 7,
+            "boss.hp": 50,
+            "challenge.healed": 1,
+            "player.hp": 80
+          }
+        },
+        {
+          "timeMs": 200,
+          "values": {"boss.hp": 0}
+        }
+      ],
+      "expectUnlocked": ["ready_state", "first_boss", "healthy_finish", "ordered_victory"],
+      "expectLocked": [
+        "no_healing", "collector", "flag_found", "world_shifted", "key_spent",
+        "first_pickup", "battle_exit", "triple_encounter", "timed_trial",
+        "pause_aware_victory"
+      ],
+      "expectProgress": {"collector": 0}
+    },
+    {
+      "name": "three distinct encounter hits",
+      "frames": [
+        {
+          "timeMs": 0,
+          "values": {
+            "battle.id": 0,
+            "boss.hp": 50,
+            "challenge.healed": 0,
+            "collectibles.count": 0,
+            "inventory.key_count": 0,
+            "player.hp": 100,
+            "player.max_hp": 100,
+            "session.paused": 0,
+            "state.name": "WAIT",
+            "world.flags": 0
+          }
+        },
+        {"timeMs": 100, "values": {"battle.id": 9}},
+        {"timeMs": 200, "values": {"battle.id": 0}},
+        {"timeMs": 300, "values": {"battle.id": 9}},
+        {"timeMs": 400, "values": {"battle.id": 0}},
+        {"timeMs": 500, "values": {"battle.id": 9}}
+      ],
+      "expectUnlocked": ["triple_encounter"],
+      "expectLocked": [
+        "ready_state", "first_boss", "no_healing", "collector", "healthy_finish",
+        "ordered_victory", "flag_found", "world_shifted", "key_spent",
+        "first_pickup", "battle_exit", "timed_trial", "pause_aware_victory"
+      ]
+    },
+    {
+      "name": "monotonic timed trial",
+      "frames": [
+        {
+          "timeMs": 0,
+          "values": {
+            "battle.id": 0,
+            "boss.hp": 50,
+            "challenge.healed": 0,
+            "collectibles.count": 0,
+            "inventory.key_count": 0,
+            "player.hp": 100,
+            "player.max_hp": 100,
+            "session.paused": 0,
+            "state.name": "WAIT",
+            "world.flags": 0
+          }
+        },
+        {"timeMs": 100, "values": {"battle.id": 8}},
+        {"timeMs": 599, "values": {"battle.id": 8}},
+        {"timeMs": 600, "values": {"battle.id": 8}}
+      ],
+      "expectUnlocked": ["timed_trial"],
+      "expectLocked": [
+        "ready_state", "first_boss", "no_healing", "collector", "healthy_finish",
+        "ordered_victory", "flag_found", "world_shifted", "key_spent",
+        "first_pickup", "battle_exit", "triple_encounter", "pause_aware_victory"
+      ]
+    },
+    {
+      "name": "pause freezes edge state",
+      "frames": [
+        {
+          "timeMs": 0,
+          "values": {
+            "battle.id": 6,
+            "boss.hp": 50,
+            "challenge.healed": 0,
+            "collectibles.count": 0,
+            "inventory.key_count": 0,
+            "player.hp": 100,
+            "player.max_hp": 100,
+            "session.paused": 0,
+            "state.name": "WAIT",
+            "world.flags": 0
+          }
+        },
+        {
+          "timeMs": 100,
+          "values": {"boss.hp": 0, "challenge.healed": 1, "session.paused": 1}
+        },
+        {"timeMs": 200, "values": {"boss.hp": 0, "session.paused": 1}},
+        {"timeMs": 300, "values": {"boss.hp": 0, "session.paused": 0}}
+      ],
+      "expectUnlocked": ["pause_aware_victory"],
+      "expectLocked": [
+        "ready_state", "first_boss", "no_healing", "collector", "healthy_finish",
+        "ordered_victory", "flag_found", "world_shifted", "key_spent",
+        "first_pickup", "battle_exit", "triple_encounter", "timed_trial"
+      ]
+    }
+  ]
+}

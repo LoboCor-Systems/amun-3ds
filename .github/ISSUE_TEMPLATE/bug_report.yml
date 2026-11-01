@@ -1,0 +1,25 @@
+name: Bug report
+description: Something in the plugin, a tool or the docs is wrong.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What went wrong?
+      description: "What did you expect, and what happened instead?"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: "Console + Luma version, or OS + Python version for the desktop tools."
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: "For console bugs: /amun/logs/platform.log. For tools: the command and its output."

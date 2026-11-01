@@ -1,0 +1,30 @@
+name: Set proposal
+description: Propose or announce an achievement set (new game, or a region/version port).
+labels: ["set"]
+body:
+  - type: input
+    id: game
+    attributes:
+      label: Game, region and exact version
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options: ["New game", "Port of an existing set", "Extension of an existing set"]
+    validations:
+      required: true
+  - type: textarea
+    id: plan
+    attributes:
+      label: Which goals, and how will you find the memory values?
+  - type: checkboxes
+    id: rules
+    attributes:
+      label: Rules
+      options:
+        - label: "I will write my own titles and descriptions (nothing copied from other sets, games or guides)."
+          required: true
+        - label: "I will release the set under CC0, CC-BY or MIT."
+          required: true

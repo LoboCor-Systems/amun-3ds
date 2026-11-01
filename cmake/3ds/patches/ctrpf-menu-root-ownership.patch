@@ -1,0 +1,70 @@
+diff --git a/Library/include/CTRPluginFrameworkImpl/Menu/Menu.hpp b/Library/include/CTRPluginFrameworkImpl/Menu/Menu.hpp
+--- a/Library/include/CTRPluginFrameworkImpl/Menu/Menu.hpp
++++ b/Library/include/CTRPluginFrameworkImpl/Menu/Menu.hpp
+@@ -25,7 +25,8 @@ namespace CTRPluginFramework
+     public:
+ 
+         Menu(const std::string &title, const std::string &footer = "", IconCallback iconCallback = nullptr);
+-        Menu(MenuFolderImpl *folder, IconCallback iconCallback = nullptr);
++        Menu(MenuFolderImpl *folder, IconCallback iconCallback = nullptr,
++             bool takeOwnership = true);
+         ~Menu(void);
+ 
+         void            Append(MenuItem *item) const;
+@@ -60,6 +61,7 @@ namespace CTRPluginFramework
+         friend class PluginMenuTools;
+         MenuFolderImpl  *_root;
+         MenuFolderImpl  *_folder;
++        bool            _ownsRoot;
+         MenuItem        *_lastSelectedItem;
+         MenuItem        *_lastNoteItem;
+ 
+diff --git a/Library/source/CTRPluginFrameworkImpl/Menu/Menu.cpp b/Library/source/CTRPluginFrameworkImpl/Menu/Menu.cpp
+--- a/Library/source/CTRPluginFrameworkImpl/Menu/Menu.cpp
++++ b/Library/source/CTRPluginFrameworkImpl/Menu/Menu.cpp
+@@ -15,6 +15,7 @@ namespace CTRPluginFramework
+         _noteTB("", "", IntRect(40, 30, 320, 180))
+     {
+         drawFooter = false;
++        _ownsRoot = true;
+         _root = _folder = new MenuFolderImpl(title, footer);
+         _iconCallback = iconCallback;
+         _lastNoteItem = _lastSelectedItem = nullptr;
+@@ -23,10 +24,12 @@ namespace CTRPluginFramework
+         _maxScrollOffset = _scrollOffset = 0.f;
+     }
+ 
+-    Menu::Menu(MenuFolderImpl *folder, IconCallback iconCallback) :
++    Menu::Menu(MenuFolderImpl *folder, IconCallback iconCallback,
++               bool takeOwnership) :
+         _noteTB("", "", IntRect(40, 30, 320, 180))
+     {
+         drawFooter = false;
++        _ownsRoot = folder == nullptr || takeOwnership;
+         _root = _folder = folder == nullptr ? new MenuFolderImpl("Menu") : folder;
+         _iconCallback = iconCallback;
+         _lastNoteItem = _lastSelectedItem = nullptr;
+@@ -66,7 +69,10 @@ namespace CTRPluginFramework
+ 
+     Menu::~Menu(void)
+     {
+-        delete _folder;
++        if (_ownsRoot)
++            delete _root;
++
++        _root = _folder = nullptr;
+     }
+ 
+     void    Menu::Append(MenuItem *item) const
+diff --git a/Library/source/CTRPluginFrameworkImpl/Menu/PluginMenuTools.cpp b/Library/source/CTRPluginFrameworkImpl/Menu/PluginMenuTools.cpp
+--- a/Library/source/CTRPluginFrameworkImpl/Menu/PluginMenuTools.cpp
++++ b/Library/source/CTRPluginFrameworkImpl/Menu/PluginMenuTools.cpp
+@@ -61,7 +61,7 @@ namespace CTRPluginFramework
+         _settingsMenu("Settings"),
+         _hexEditorEntry(nullptr),
+         _hexEditor(hexEditor),
+-        _menu(&_mainMenu, nullptr),
++        _menu(&_mainMenu, nullptr, false),
+         _abouttb("About", _about, IntRect(30, 20, 340, 200)),
+         _exit(false)
+     {

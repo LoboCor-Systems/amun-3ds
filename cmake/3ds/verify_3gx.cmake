@@ -1,0 +1,20 @@
+cmake_minimum_required(VERSION 3.20)
+
+if(NOT DEFINED AMUN_3GX OR AMUN_3GX STREQUAL "")
+    message(FATAL_ERROR "Pass -DAMUN_3GX=<path-to-plugin.3gx>")
+endif()
+if(NOT EXISTS "${AMUN_3GX}")
+    message(FATAL_ERROR "3GX output does not exist: ${AMUN_3GX}")
+endif()
+
+file(SIZE "${AMUN_3GX}" plugin_size)
+if(plugin_size LESS 8)
+    message(FATAL_ERROR "3GX output is truncated (${plugin_size} bytes)")
+endif()
+file(READ "${AMUN_3GX}" magic_hex OFFSET 0 LIMIT 8 HEX)
+string(TOLOWER "${magic_hex}" magic_hex)
+if(NOT magic_hex STREQUAL "3347582430303032")
+    message(FATAL_ERROR
+        "Unexpected 3GX magic ${magic_hex}; expected ASCII 3GX$0002")
+endif()
+message(STATUS "Verified 3GX$0002 container header: ${AMUN_3GX}")

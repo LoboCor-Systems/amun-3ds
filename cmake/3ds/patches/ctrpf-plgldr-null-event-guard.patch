@@ -1,0 +1,24 @@
+diff --git a/Library/source/plgldr.c b/Library/source/plgldr.c
+index e9835fe..ddce4a7 100644
+--- a/Library/source/plgldr.c
++++ b/Library/source/plgldr.c
+@@ -302,6 +302,9 @@ void    PLGLDR__Status(void)
+ 
+ s32     PLGLDR__FetchEvent(void)
+ {
++    if (plgEvent == NULL)
++        return PLG_OK;
++
+     s32  event = __ldrex__(plgEvent); // exclusive read necessary?
+ 
+     return event;
+@@ -310,6 +313,9 @@ s32     PLGLDR__FetchEvent(void)
+ 
+ void    PLGLDR__Reply(s32 event)
+ {
++    if (plgEvent == NULL || plgReply == NULL)
++        return;
++
+     __strex__(plgReply, PLG_OK);
+ 
+     if (event < PLG_ABOUT_TO_SWAP)

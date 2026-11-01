@@ -1,0 +1,22 @@
+diff --git a/Library/source/CTRPluginFramework/System/ThreadEx.cpp b/Library/source/CTRPluginFramework/System/ThreadEx.cpp
+index 06ac946..6248845 100644
+--- a/Library/source/CTRPluginFramework/System/ThreadEx.cpp
++++ b/Library/source/CTRPluginFramework/System/ThreadEx.cpp
+@@ -115,8 +115,14 @@ namespace CTRPluginFramework
+ 
+     ThreadEx::~ThreadEx(void)
+     {
+-        if (_thread)
++        if (_thread)
+         {
+-            std::free(_thread);
++            // A timed join can leave the thread running while __ctru_exit invokes
++            // global destructors. Its Thread_tag allocation also contains the live
++            // stack, so freeing it here corrupts both the thread and newlib's heap.
++            // The process teardown reclaims a still-running allocation; completed
++            // threads must use libctru's cleanup so their handle is closed as well.
++            if (_thread->finished)
++                threadFree(_thread);
+             _thread = nullptr;
+         }
+     }

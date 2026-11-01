@@ -1,0 +1,815 @@
+{
+  "schema": 1,
+  "profile": "mario-kart-7-eur-progression",
+  "titleId": "0004000000030700",
+  "region": "EUR",
+  "note": "Research-only staff ghost reference table for AMUN Time Trial goals. All 32 race courses (Normal + Expert). Course IDs are RaceSys::ECourseID (course 4 = Toad Circuit). Pack format 1.1 has no course-indexed constant table; ghost_normal_first / ghost_expert_first expand the staff compare as an any-of per-course (courseId + totalMs) branch. Do not treat ghost-unit kartInfo on the results screen as staff truth. No RomFS/DAT dump was present in-tree.",
+  "sources": [
+    {
+      "name": "Super Mario Wiki (per-course Staff ghosts boxes)",
+      "role": "primary times + staff ghost tags",
+      "urls": [
+        "https://www.mariowiki.com/Airship_Fortress",
+        "https://www.mariowiki.com/Bowser%27s_Castle_(Mario_Kart_7)",
+        "https://www.mariowiki.com/Cheep_Cheep_Cape",
+        "https://www.mariowiki.com/Coconut_Mall",
+        "https://www.mariowiki.com/DK_Jungle_(Mario_Kart_7)",
+        "https://www.mariowiki.com/DK_Pass",
+        "https://www.mariowiki.com/DS_Waluigi_Pinball",
+        "https://www.mariowiki.com/Daisy_Hills",
+        "https://www.mariowiki.com/Dino_Dino_Jungle",
+        "https://www.mariowiki.com/GBA_Bowser_Castle_1",
+        "https://www.mariowiki.com/GCN_Daisy_Cruiser",
+        "https://www.mariowiki.com/Kalimari_Desert",
+        "https://www.mariowiki.com/Koopa_Cape",
+        "https://www.mariowiki.com/Luigi%27s_Mansion_(race_course)",
+        "https://www.mariowiki.com/Luigi_Raceway",
+        "https://www.mariowiki.com/Maka_Wuhu",
+        "https://www.mariowiki.com/Maple_Treeway",
+        "https://www.mariowiki.com/Mario_Circuit_(Mario_Kart_7)",
+        "https://www.mariowiki.com/Mario_Circuit_2",
+        "https://www.mariowiki.com/Mushroom_Gorge",
+        "https://www.mariowiki.com/Music_Park",
+        "https://www.mariowiki.com/N64_Koopa_Troopa_Beach",
+        "https://www.mariowiki.com/Neo_Bowser_City",
+        "https://www.mariowiki.com/Piranha_Plant_Slide",
+        "https://www.mariowiki.com/Rainbow_Road_(Mario_Kart_7)",
+        "https://www.mariowiki.com/Rainbow_Road_(SNES)",
+        "https://www.mariowiki.com/Rock_Rock_Mountain",
+        "https://www.mariowiki.com/Rosalina%27s_Ice_World",
+        "https://www.mariowiki.com/Shy_Guy_Bazaar",
+        "https://www.mariowiki.com/Toad_Circuit",
+        "https://www.mariowiki.com/Wario_Shipyard",
+        "https://www.mariowiki.com/Wuhu_Loop"
+      ]
+    },
+    {
+      "name": "IGN Mario Kart 7 Unlockables staff list",
+      "url": "https://www.ign.com/wikis/mario-kart-7/unlockables",
+      "role": "cross-check; two typos corrected via wiki (Coconut Mall Normal 2:30.117 not .177; Kalimari Expert 1:47.707 not 1:48.707; Music Park Expert 2:07.511 not IGN 2:07.551)"
+    },
+    {
+      "name": "MK7 List of Identifiers (RaceSys::ECourseID)",
+      "url": "https://mk3ds.com/?title=List_of_Identifiers",
+      "role": "courseId mapping"
+    },
+    {
+      "name": "AMUN hardware TT captures",
+      "role": "Toad Circuit Normal pin 1:35.135 / Expert 1:26.632",
+      "paths": [
+        "build/research/mk7-20260927-004324-tt-results.json",
+        "profiles/mario-kart-7-eur-progression/staff-times.json (prior course-4 row)"
+      ]
+    }
+  ],
+  "encoding": {
+    "ctimeBody": "KartInfo+0x5C vtable; +0x60 u16 minutes; +0x62 u16 seconds; +0x64 u32 ms (LE)",
+    "totalMs": "minutes*60000 + seconds*1000 + milliseconds",
+    "compare": "Beat means race.place==1 and player totalMs < staff totalMs for race.course (ties excluded)",
+    "ghostClass": "menu.raceInfo+0x030 / mode.header+0x050: 0=Normal, 1=Expert (TT only)",
+    "course": "menu.raceInfo+0x160 / mode.header+0x180 (mirrored; profile symbol race.course = mode+0x1C4)"
+  },
+  "courses": [
+    {
+      "courseId": 0,
+      "name": "Mario Circuit",
+      "internalName": "Gctr_MarioCircuit",
+      "normal": {
+        "driver": "Nin★Miki★",
+        "minutes": 2,
+        "seconds": 25,
+        "milliseconds": 1,
+        "totalMs": 145001,
+        "display": "2:25.001",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Mario_Circuit_(Mario_Kart_7)"
+      },
+      "expert": {
+        "driver": "Nin★raba",
+        "minutes": 2,
+        "seconds": 10,
+        "milliseconds": 18,
+        "totalMs": 130018,
+        "display": "2:10.018",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Mario_Circuit_(Mario_Kart_7)"
+      }
+    },
+    {
+      "courseId": 1,
+      "name": "Rock Rock Mountain",
+      "internalName": "Gctr_RallyCourse",
+      "normal": {
+        "driver": "Nin★Morimo",
+        "minutes": 2,
+        "seconds": 35,
+        "milliseconds": 105,
+        "totalMs": 155105,
+        "display": "2:35.105",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Rock_Rock_Mountain"
+      },
+      "expert": {
+        "driver": "Nin★Hiroma",
+        "minutes": 2,
+        "seconds": 19,
+        "milliseconds": 149,
+        "totalMs": 139149,
+        "display": "2:19.149",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Rock_Rock_Mountain"
+      }
+    },
+    {
+      "courseId": 2,
+      "name": "Cheep Cheep Lagoon",
+      "internalName": "Gctr_MarineRoad",
+      "normal": {
+        "driver": "Nin★Gonta★",
+        "minutes": 1,
+        "seconds": 53,
+        "milliseconds": 758,
+        "totalMs": 113758,
+        "display": "1:53.758",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Cheep_Cheep_Cape"
+      },
+      "expert": {
+        "driver": "Nin★Tkdr",
+        "minutes": 1,
+        "seconds": 42,
+        "milliseconds": 11,
+        "totalMs": 102011,
+        "display": "1:42.011",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Cheep_Cheep_Cape"
+      }
+    },
+    {
+      "courseId": 3,
+      "name": "Daisy Hills",
+      "internalName": "Gctr_GlideLake",
+      "normal": {
+        "driver": "Nin★Terui♪",
+        "minutes": 2,
+        "seconds": 6,
+        "milliseconds": 351,
+        "totalMs": 126351,
+        "display": "2:06.351",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Daisy_Hills"
+      },
+      "expert": {
+        "driver": "Nin★SASAKI",
+        "minutes": 1,
+        "seconds": 51,
+        "milliseconds": 111,
+        "totalMs": 111111,
+        "display": "1:51.111",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Daisy_Hills"
+      }
+    },
+    {
+      "courseId": 4,
+      "name": "Toad Circuit",
+      "internalName": "Gctr_ToadCircuit",
+      "normal": {
+        "driver": "Katie",
+        "minutes": 1,
+        "seconds": 35,
+        "milliseconds": 135,
+        "totalMs": 95135,
+        "display": "1:35.135",
+        "evidence": "Hardware TT results vs Katie 1:35.135 (mk7-20260927-004324-tt-results.json); Mario Wiki Nin★KATIE matches. https://www.mariowiki.com/Toad_Circuit"
+      },
+      "expert": {
+        "driver": "Nin★ishi",
+        "minutes": 1,
+        "seconds": 26,
+        "milliseconds": 632,
+        "totalMs": 86632,
+        "display": "1:26.632",
+        "evidence": "User-reported Expert 1:26.632; Mario Wiki Nin★ishi matches (prior draft labeled character Rosalina). https://www.mariowiki.com/Toad_Circuit"
+      }
+    },
+    {
+      "courseId": 5,
+      "name": "Shy Guy Bazaar",
+      "internalName": "Gctr_SandTown",
+      "normal": {
+        "driver": "Ret★TEAGUE",
+        "minutes": 2,
+        "seconds": 31,
+        "milliseconds": 167,
+        "totalMs": 151167,
+        "display": "2:31.167",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Shy_Guy_Bazaar"
+      },
+      "expert": {
+        "driver": "Ret★RWO",
+        "minutes": 2,
+        "seconds": 14,
+        "milliseconds": 714,
+        "totalMs": 134714,
+        "display": "2:14.714",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Shy_Guy_Bazaar"
+      }
+    },
+    {
+      "courseId": 6,
+      "name": "Neo Bowser City",
+      "internalName": "Gctr_AdvancedCircuit",
+      "normal": {
+        "driver": "Ret★Chuck",
+        "minutes": 2,
+        "seconds": 11,
+        "milliseconds": 32,
+        "totalMs": 131032,
+        "display": "2:11.032",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Neo_Bowser_City"
+      },
+      "expert": {
+        "driver": "Ret★Matt",
+        "minutes": 1,
+        "seconds": 58,
+        "milliseconds": 996,
+        "totalMs": 118996,
+        "display": "1:58.996",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Neo_Bowser_City"
+      }
+    },
+    {
+      "courseId": 7,
+      "name": "DK Jungle",
+      "internalName": "Gctr_DKJungle",
+      "normal": {
+        "driver": "Ret★Derek",
+        "minutes": 2,
+        "seconds": 24,
+        "milliseconds": 40,
+        "totalMs": 144040,
+        "display": "2:24.040",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/DK_Jungle_(Mario_Kart_7)"
+      },
+      "expert": {
+        "driver": "Ret★Dupree",
+        "minutes": 2,
+        "seconds": 10,
+        "milliseconds": 777,
+        "totalMs": 130777,
+        "display": "2:10.777",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/DK_Jungle_(Mario_Kart_7)"
+      }
+    },
+    {
+      "courseId": 8,
+      "name": "Wuhu Loop",
+      "internalName": "Gctr_WuhuIsland1",
+      "normal": {
+        "driver": "Ret★Bryan",
+        "minutes": 1,
+        "seconds": 44,
+        "milliseconds": 287,
+        "totalMs": 104287,
+        "display": "1:44.287",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Wuhu_Loop"
+      },
+      "expert": {
+        "driver": "Nin★nkm",
+        "minutes": 1,
+        "seconds": 32,
+        "milliseconds": 854,
+        "totalMs": 92854,
+        "display": "1:32.854",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Wuhu_Loop"
+      }
+    },
+    {
+      "courseId": 9,
+      "name": "Maka Wuhu",
+      "internalName": "Gctr_WuhuIsland2",
+      "normal": {
+        "driver": "Ret★Reed",
+        "minutes": 1,
+        "seconds": 50,
+        "milliseconds": 607,
+        "totalMs": 110607,
+        "display": "1:50.607",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Maka_Wuhu"
+      },
+      "expert": {
+        "driver": "Nin★Chucky",
+        "minutes": 1,
+        "seconds": 39,
+        "milliseconds": 361,
+        "totalMs": 99361,
+        "display": "1:39.361",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Maka_Wuhu"
+      }
+    },
+    {
+      "courseId": 10,
+      "name": "Rosalina's Ice World",
+      "internalName": "Gctr_IceSlider",
+      "normal": {
+        "driver": "Ret★RLingo",
+        "minutes": 2,
+        "seconds": 25,
+        "milliseconds": 784,
+        "totalMs": 145784,
+        "display": "2:25.784",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Rosalina%27s_Ice_World"
+      },
+      "expert": {
+        "driver": "Ret★Dax",
+        "minutes": 2,
+        "seconds": 13,
+        "milliseconds": 91,
+        "totalMs": 133091,
+        "display": "2:13.091",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Rosalina%27s_Ice_World"
+      }
+    },
+    {
+      "courseId": 11,
+      "name": "Bowser's Castle",
+      "internalName": "Gctr_BowserCastle",
+      "normal": {
+        "driver": "Ret★Matt",
+        "minutes": 2,
+        "seconds": 34,
+        "milliseconds": 815,
+        "totalMs": 154815,
+        "display": "2:34.815",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Bowser%27s_Castle_(Mario_Kart_7)"
+      },
+      "expert": {
+        "driver": "Ret★Tom",
+        "minutes": 2,
+        "seconds": 15,
+        "milliseconds": 244,
+        "totalMs": 135244,
+        "display": "2:15.244",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Bowser%27s_Castle_(Mario_Kart_7)"
+      }
+    },
+    {
+      "courseId": 12,
+      "name": "Piranha Plant Slide",
+      "internalName": "Gctr_UnderGround",
+      "normal": {
+        "driver": "Nin★tBando",
+        "minutes": 2,
+        "seconds": 20,
+        "milliseconds": 186,
+        "totalMs": 140186,
+        "display": "2:20.186",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Piranha_Plant_Slide"
+      },
+      "expert": {
+        "driver": "Nin★JIKU",
+        "minutes": 2,
+        "seconds": 6,
+        "milliseconds": 540,
+        "totalMs": 126540,
+        "display": "2:06.540",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Piranha_Plant_Slide"
+      }
+    },
+    {
+      "courseId": 13,
+      "name": "Rainbow Road",
+      "internalName": "Gctr_RainbowRoad",
+      "normal": {
+        "driver": "Nin★Takamu",
+        "minutes": 2,
+        "seconds": 10,
+        "milliseconds": 90,
+        "totalMs": 130090,
+        "display": "2:10.090",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Rainbow_Road_(Mario_Kart_7)"
+      },
+      "expert": {
+        "driver": "Nin★Asakur",
+        "minutes": 1,
+        "seconds": 52,
+        "milliseconds": 77,
+        "totalMs": 112077,
+        "display": "1:52.077",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Rainbow_Road_(Mario_Kart_7)"
+      }
+    },
+    {
+      "courseId": 14,
+      "name": "Wario Shipyard",
+      "internalName": "Gctr_WarioShip",
+      "normal": {
+        "driver": "Nin★Miyamo",
+        "minutes": 2,
+        "seconds": 26,
+        "milliseconds": 268,
+        "totalMs": 146268,
+        "display": "2:26.268",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Wario_Shipyard"
+      },
+      "expert": {
+        "driver": "Nin★syun1",
+        "minutes": 2,
+        "seconds": 12,
+        "milliseconds": 313,
+        "totalMs": 132313,
+        "display": "2:12.313",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Wario_Shipyard"
+      }
+    },
+    {
+      "courseId": 15,
+      "name": "Music Park",
+      "internalName": "Gctr_MusicPark",
+      "normal": {
+        "driver": "Nin★wtnbt",
+        "minutes": 2,
+        "seconds": 19,
+        "milliseconds": 336,
+        "totalMs": 139336,
+        "display": "2:19.336",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Music_Park"
+      },
+      "expert": {
+        "driver": "Nin★Masa",
+        "minutes": 2,
+        "seconds": 7,
+        "milliseconds": 511,
+        "totalMs": 127511,
+        "display": "2:07.511",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Music_Park"
+      }
+    },
+    {
+      "courseId": 16,
+      "name": "Wii Coconut Mall",
+      "internalName": "Gwii_CoconutMall",
+      "normal": {
+        "driver": "Ret★Thomas",
+        "minutes": 2,
+        "seconds": 30,
+        "milliseconds": 117,
+        "totalMs": 150117,
+        "display": "2:30.117",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Coconut_Mall"
+      },
+      "expert": {
+        "driver": "Ret★RyanP",
+        "minutes": 2,
+        "seconds": 14,
+        "milliseconds": 167,
+        "totalMs": 134167,
+        "display": "2:14.167",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Coconut_Mall"
+      }
+    },
+    {
+      "courseId": 17,
+      "name": "Wii Koopa Cape",
+      "internalName": "Gwii_KoopaCape",
+      "normal": {
+        "driver": "Ret★Quinn",
+        "minutes": 2,
+        "seconds": 49,
+        "milliseconds": 46,
+        "totalMs": 169046,
+        "display": "2:49.046",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Koopa_Cape"
+      },
+      "expert": {
+        "driver": "Ret★Shane",
+        "minutes": 2,
+        "seconds": 28,
+        "milliseconds": 585,
+        "totalMs": 148585,
+        "display": "2:28.585",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Koopa_Cape"
+      }
+    },
+    {
+      "courseId": 18,
+      "name": "Wii Maple Treeway",
+      "internalName": "Gwii_MapleTreeway",
+      "normal": {
+        "driver": "Nin★Asakaw",
+        "minutes": 2,
+        "seconds": 53,
+        "milliseconds": 560,
+        "totalMs": 173560,
+        "display": "2:53.560",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Maple_Treeway"
+      },
+      "expert": {
+        "driver": "Ret★Bill",
+        "minutes": 2,
+        "seconds": 34,
+        "milliseconds": 877,
+        "totalMs": 154877,
+        "display": "2:34.877",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Maple_Treeway"
+      }
+    },
+    {
+      "courseId": 19,
+      "name": "Wii Mushroom Gorge",
+      "internalName": "Gwii_MushroomGorge",
+      "normal": {
+        "driver": "Nin★Kataok",
+        "minutes": 2,
+        "seconds": 2,
+        "milliseconds": 292,
+        "totalMs": 122292,
+        "display": "2:02.292",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Mushroom_Gorge"
+      },
+      "expert": {
+        "driver": "Ret★Jay",
+        "minutes": 1,
+        "seconds": 50,
+        "milliseconds": 526,
+        "totalMs": 110526,
+        "display": "1:50.526",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Mushroom_Gorge"
+      }
+    },
+    {
+      "courseId": 20,
+      "name": "DS Luigi's Mansion",
+      "internalName": "Gds_LuigisMansion",
+      "normal": {
+        "driver": "Nin★Konno",
+        "minutes": 2,
+        "seconds": 9,
+        "milliseconds": 982,
+        "totalMs": 129982,
+        "display": "2:09.982",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Luigi%27s_Mansion_(race_course)"
+      },
+      "expert": {
+        "driver": "Ret★Vince",
+        "minutes": 1,
+        "seconds": 58,
+        "milliseconds": 539,
+        "totalMs": 118539,
+        "display": "1:58.539",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Luigi%27s_Mansion_(race_course)"
+      }
+    },
+    {
+      "courseId": 21,
+      "name": "DS Airship Fortress",
+      "internalName": "Gds_AirshipFortress",
+      "normal": {
+        "driver": "Nin★OBSHNN",
+        "minutes": 2,
+        "seconds": 23,
+        "milliseconds": 323,
+        "totalMs": 143323,
+        "display": "2:23.323",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Airship_Fortress"
+      },
+      "expert": {
+        "driver": "Ret★Shane",
+        "minutes": 2,
+        "seconds": 7,
+        "milliseconds": 704,
+        "totalMs": 127704,
+        "display": "2:07.704",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Airship_Fortress"
+      }
+    },
+    {
+      "courseId": 22,
+      "name": "DS DK Pass",
+      "internalName": "Gds_DKPass",
+      "normal": {
+        "driver": "Ret★Sean",
+        "minutes": 2,
+        "seconds": 35,
+        "milliseconds": 45,
+        "totalMs": 155045,
+        "display": "2:35.045",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/DK_Pass"
+      },
+      "expert": {
+        "driver": "Nin★MaTU",
+        "minutes": 2,
+        "seconds": 16,
+        "milliseconds": 534,
+        "totalMs": 136534,
+        "display": "2:16.534",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/DK_Pass"
+      }
+    },
+    {
+      "courseId": 23,
+      "name": "DS Waluigi Pinball",
+      "internalName": "Gds_WaluigiPinball",
+      "normal": {
+        "driver": "Ret★Bill",
+        "minutes": 2,
+        "seconds": 44,
+        "milliseconds": 372,
+        "totalMs": 164372,
+        "display": "2:44.372",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/DS_Waluigi_Pinball"
+      },
+      "expert": {
+        "driver": "Nin★Nshhr",
+        "minutes": 2,
+        "seconds": 27,
+        "milliseconds": 574,
+        "totalMs": 147574,
+        "display": "2:27.574",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/DS_Waluigi_Pinball"
+      }
+    },
+    {
+      "courseId": 24,
+      "name": "GCN Dino Dino Jungle",
+      "internalName": "Ggc_DinoDinoJungle",
+      "normal": {
+        "driver": "Nin★iwaco",
+        "minutes": 2,
+        "seconds": 29,
+        "milliseconds": 837,
+        "totalMs": 149837,
+        "display": "2:29.837",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Dino_Dino_Jungle"
+      },
+      "expert": {
+        "driver": "Ret★Will",
+        "minutes": 2,
+        "seconds": 14,
+        "milliseconds": 430,
+        "totalMs": 134430,
+        "display": "2:14.430",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Dino_Dino_Jungle"
+      }
+    },
+    {
+      "courseId": 25,
+      "name": "GCN Daisy Cruiser",
+      "internalName": "Ggc_DaisyCruiser",
+      "normal": {
+        "driver": "Nin★Dai8",
+        "minutes": 1,
+        "seconds": 49,
+        "milliseconds": 564,
+        "totalMs": 109564,
+        "display": "1:49.564",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/GCN_Daisy_Cruiser"
+      },
+      "expert": {
+        "driver": "Ret★Carlos",
+        "minutes": 1,
+        "seconds": 43,
+        "milliseconds": 341,
+        "totalMs": 103341,
+        "display": "1:43.341",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/GCN_Daisy_Cruiser"
+      }
+    },
+    {
+      "courseId": 26,
+      "name": "N64 Luigi Raceway",
+      "internalName": "Gn64_LuigiCircuit",
+      "normal": {
+        "driver": "Nin★McCoy",
+        "minutes": 2,
+        "seconds": 4,
+        "milliseconds": 317,
+        "totalMs": 124317,
+        "display": "2:04.317",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Luigi_Raceway"
+      },
+      "expert": {
+        "driver": "Nin★miyakw",
+        "minutes": 1,
+        "seconds": 52,
+        "milliseconds": 206,
+        "totalMs": 112206,
+        "display": "1:52.206",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Luigi_Raceway"
+      }
+    },
+    {
+      "courseId": 27,
+      "name": "N64 Kalimari Desert",
+      "internalName": "Gn64_KalimariDesert",
+      "normal": {
+        "driver": "Nin★Nishim",
+        "minutes": 2,
+        "seconds": 1,
+        "milliseconds": 932,
+        "totalMs": 121932,
+        "display": "2:01.932",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Kalimari_Desert"
+      },
+      "expert": {
+        "driver": "Nin★KOZ★",
+        "minutes": 1,
+        "seconds": 47,
+        "milliseconds": 707,
+        "totalMs": 107707,
+        "display": "1:47.707",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Kalimari_Desert"
+      }
+    },
+    {
+      "courseId": 28,
+      "name": "N64 Koopa Troopa Beach",
+      "internalName": "Gn64_KoopaTroopaBeach",
+      "normal": {
+        "driver": "Ret★Amanda",
+        "minutes": 1,
+        "seconds": 54,
+        "milliseconds": 274,
+        "totalMs": 114274,
+        "display": "1:54.274",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/N64_Koopa_Troopa_Beach"
+      },
+      "expert": {
+        "driver": "Nin★ueda",
+        "minutes": 1,
+        "seconds": 42,
+        "milliseconds": 909,
+        "totalMs": 102909,
+        "display": "1:42.909",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/N64_Koopa_Troopa_Beach"
+      }
+    },
+    {
+      "courseId": 29,
+      "name": "GBA Bowser Castle 1",
+      "internalName": "Gagb_BowserCastle1",
+      "normal": {
+        "driver": "Nin★Hayata",
+        "minutes": 1,
+        "seconds": 31,
+        "milliseconds": 30,
+        "totalMs": 91030,
+        "display": "1:31.030",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/GBA_Bowser_Castle_1"
+      },
+      "expert": {
+        "driver": "Nin★hokwai",
+        "minutes": 1,
+        "seconds": 22,
+        "milliseconds": 221,
+        "totalMs": 82221,
+        "display": "1:22.221",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/GBA_Bowser_Castle_1"
+      }
+    },
+    {
+      "courseId": 30,
+      "name": "SNES Mario Circuit 2",
+      "internalName": "Gsfc_MarioCircuit2",
+      "normal": {
+        "driver": "Nin★ITRO-S",
+        "minutes": 1,
+        "seconds": 28,
+        "milliseconds": 106,
+        "totalMs": 88106,
+        "display": "1:28.106",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Mario_Circuit_2"
+      },
+      "expert": {
+        "driver": "Nin★==Kony",
+        "minutes": 1,
+        "seconds": 17,
+        "milliseconds": 777,
+        "totalMs": 77777,
+        "display": "1:17.777",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Mario_Circuit_2"
+      }
+    },
+    {
+      "courseId": 31,
+      "name": "SNES Rainbow Road",
+      "internalName": "Gsfc_RainbowRoad",
+      "normal": {
+        "driver": "Nin★YABUKI",
+        "minutes": 1,
+        "seconds": 34,
+        "milliseconds": 459,
+        "totalMs": 94459,
+        "display": "1:34.459",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Rainbow_Road_(SNES)"
+      },
+      "expert": {
+        "driver": "Nin★SRIWtm",
+        "minutes": 1,
+        "seconds": 21,
+        "milliseconds": 994,
+        "totalMs": 81994,
+        "display": "1:21.994",
+        "evidence": "Mario Wiki staff ghost box; https://www.mariowiki.com/Rainbow_Road_(SNES)"
+      }
+    }
+  ],
+  "gaps": [
+    "No durable per-course ghost-beat bitmap yet; ghost_normal_8/16/32 and ghost_expert_8 need that or per-course achievements.",
+    "Live staff CTime on the ghost unit is not a reliable reference on the results screen.",
+    "No in-tree RomFS/DAT dump to re-pin times from binary; wiki+IGN+Toad Circuit hardware used."
+  ]
+}

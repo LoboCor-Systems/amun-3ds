@@ -1,0 +1,309 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://amun.invalid/schema/profile-v1.json",
+  "title": "AMUN 3DS Source Profile",
+  "description": "Human-readable source compiled into a bounded AMUN 1.0 pack.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "profile", "game", "symbols", "achievements"],
+  "properties": {
+    "schema": {"const": 1},
+    "profile": {"$ref": "#/$defs/profileMetadata"},
+    "game": {"$ref": "#/$defs/game"},
+    "symbols": {
+      "type": "object",
+      "maxProperties": 1024,
+      "propertyNames": {"$ref": "#/$defs/identifier"},
+      "additionalProperties": {"$ref": "#/$defs/symbol"}
+    },
+    "assets": {
+      "type": "object",
+      "default": {},
+      "maxProperties": 128,
+      "propertyNames": {"$ref": "#/$defs/identifier"},
+      "additionalProperties": {"$ref": "#/$defs/asset"}
+    },
+    "achievements": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 500,
+      "items": {"$ref": "#/$defs/achievement"}
+    },
+    "tests": {
+      "type": "array",
+      "default": [],
+      "items": {"$ref": "#/$defs/testScenario"}
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"
+    },
+    "boundedString": {"type": "string", "maxLength": 1024},
+    "integerOrHex": {
+      "oneOf": [
+        {"type": "integer"},
+        {"type": "string", "pattern": "^-?(0[xX][0-9A-Fa-f]+|[0-9]+)$"}
+      ]
+    },
+    "profileMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "license", "authors", "provenance"],
+      "properties": {
+        "version": {"$ref": "#/$defs/boundedString"},
+        "license": {"$ref": "#/$defs/boundedString"},
+        "authors": {"type": "array", "items": {"$ref": "#/$defs/boundedString"}},
+        "provenance": {"$ref": "#/$defs/boundedString"},
+        "integrity": {"enum": ["live", "live_unverified", "developer", "imported", "save_scan"]}
+      }
+    },
+    "game": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["platform", "titleId", "name", "builds"],
+      "properties": {
+        "platform": {"const": "3ds"},
+        "titleId": {"type": "string", "pattern": "^[0-9A-Fa-f]{16}$"},
+        "name": {"$ref": "#/$defs/boundedString"},
+        "builds": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/build"}
+        }
+      }
+    },
+    "build": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "region", "applicationVersion", "updateVersion", "codeFingerprint"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "region": {"$ref": "#/$defs/boundedString"},
+        "applicationVersion": {"$ref": "#/$defs/boundedString"},
+        "updateVersion": {"$ref": "#/$defs/boundedString"},
+        "codeFingerprint": {
+          "type": "string",
+          "pattern": "^(sha256:[0-9A-Fa-f]{64}|live-text-crc32-v1:[0-9A-Fa-f]{8}:[0-9A-Fa-f]{8})$"
+        },
+        "compatible": {"type": "boolean", "default": false}
+      }
+    },
+    "symbol": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "resolver"],
+      "properties": {
+        "type": {"enum": ["bit", "bool", "u8", "s8", "u16", "s16", "u32", "s32", "f32", "bytes", "fixed_string"]},
+        "size": {"type": "integer", "minimum": 1, "maximum": 16},
+        "bitIndex": {"type": "integer", "minimum": 0, "maximum": 7, "default": 0},
+        "poll": {"enum": ["fast", "normal", "slow", "static"], "default": "normal"},
+        "resolver": {"$ref": "#/$defs/resolver"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"type": {"enum": ["bytes", "fixed_string"]}}, "required": ["type"]},
+          "then": {"required": ["size"]},
+          "else": {"not": {"required": ["size"]}}
+        }
+      ]
+    },
+    "resolver": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "address"],
+          "properties": {"kind": {"const": "absolute"}, "address": {"$ref": "#/$defs/integerOrHex"}}
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "offset"],
+          "properties": {"kind": {"const": "module_relative"}, "offset": {"$ref": "#/$defs/integerOrHex"}}
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "offsets"],
+          "properties": {
+            "kind": {"const": "pointer_chain"},
+            "address": {"$ref": "#/$defs/integerOrHex"},
+            "moduleOffset": {"$ref": "#/$defs/integerOrHex"},
+              "offsets": {"type": "array", "minItems": 1, "maxItems": 16, "items": {"$ref": "#/$defs/integerOrHex"}},
+              "xorMasks": {"type": "array", "maxItems": 15, "items": {"$ref": "#/$defs/integerOrHex"}},
+              "refresh": {"type": "boolean"}
+          },
+          "oneOf": [{"required": ["address"]}, {"required": ["moduleOffset"]}]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "scanStart", "scanSize", "pattern"],
+          "properties": {
+            "kind": {"const": "pattern"},
+            "scanStart": {"$ref": "#/$defs/integerOrHex"},
+            "scanSize": {"$ref": "#/$defs/integerOrHex"},
+            "resultOffset": {"$ref": "#/$defs/integerOrHex"},
+            "pattern": {"type": "string", "minLength": 2}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "expression"],
+          "properties": {"kind": {"const": "derived"}, "expression": {"$ref": "#/$defs/valueExpression"}}
+        }
+      ]
+    },
+    "valueExpression": {
+      "oneOf": [
+        {"type": ["integer", "number", "boolean"]},
+        {"$ref": "#/$defs/identifier"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["symbol"],
+          "properties": {"symbol": {"$ref": "#/$defs/identifier"}, "state": {"enum": ["current", "previous", "initial"]}}
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["const"],
+          "properties": {"const": {"type": ["integer", "number", "boolean"]}}
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["bytes"],
+          "properties": {"bytes": {"oneOf": [{"type": "string"}, {"type": "array", "minItems": 1, "maxItems": 16, "items": {"type": "integer", "minimum": 0, "maximum": 255}}]}}
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["string"],
+          "properties": {"string": {"type": "string", "minLength": 1, "maxLength": 16}}
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["op", "left", "right"],
+          "properties": {
+            "op": {"enum": ["add", "subtract", "multiply", "divide", "bit_and", "bit_or", "+", "-", "*", "/"]},
+            "left": {"$ref": "#/$defs/valueExpression"},
+            "right": {"$ref": "#/$defs/valueExpression"}
+          }
+        }
+      ]
+    },
+    "condition": {
+      "oneOf": [
+        {"type": "boolean"},
+        {
+          "type": "object",
+          "required": ["all"],
+          "properties": {"all": {"type": "array", "minItems": 1, "maxItems": 255, "items": {"$ref": "#/$defs/condition"}}},
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["any"],
+          "properties": {"any": {"type": "array", "minItems": 1, "maxItems": 255, "items": {"$ref": "#/$defs/condition"}}},
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["not"],
+          "properties": {"not": {"$ref": "#/$defs/condition"}},
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["op"],
+          "properties": {
+            "op": {"type": "string"},
+            "symbol": {"$ref": "#/$defs/identifier"},
+            "left": {"$ref": "#/$defs/valueExpression"},
+            "right": {"$ref": "#/$defs/valueExpression"},
+            "value": {"$ref": "#/$defs/valueExpression"},
+            "mask": {"$ref": "#/$defs/valueExpression"},
+            "lower": {"$ref": "#/$defs/valueExpression"},
+            "upper": {"$ref": "#/$defs/valueExpression"},
+            "min": {"$ref": "#/$defs/valueExpression"},
+            "max": {"$ref": "#/$defs/valueExpression"},
+            "amount": {"type": "integer", "minimum": 0},
+            "condition": {"$ref": "#/$defs/condition"},
+            "conditions": {"type": "array", "minItems": 1, "maxItems": 255, "items": {"$ref": "#/$defs/condition"}},
+            "count": {"type": "integer", "minimum": 1, "maximum": 65535},
+            "target": {"type": "integer", "minimum": 1},
+            "milliseconds": {"type": "integer", "minimum": 1},
+            "durationMs": {"type": "integer", "minimum": 1},
+            "reset": {"$ref": "#/$defs/condition"},
+            "pause": {"$ref": "#/$defs/condition"},
+            "state": {"enum": ["current", "previous", "initial"]}
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "asset": {
+      "type": "object",
+      "required": ["kind", "format"],
+      "properties": {
+        "kind": {"enum": ["icon", "sound"]},
+        "format": {"enum": ["rgb565", "rgba5551", "pcm_u8"]},
+        "compression": {"enum": ["none", "byte_rle"], "default": "none"},
+        "width": {"type": "integer", "minimum": 1, "maximum": 64},
+        "height": {"type": "integer", "minimum": 1, "maximum": 64},
+        "file": {"type": "string", "minLength": 1},
+        "data": {"oneOf": [{"type": "string"}, {"type": "array", "items": {"type": "integer", "minimum": 0, "maximum": 255}}]}
+      },
+      "oneOf": [{"required": ["file"]}, {"required": ["data"]}],
+      "additionalProperties": false
+    },
+    "achievement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "description", "points", "trigger"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "title": {"$ref": "#/$defs/boundedString"},
+        "description": {"$ref": "#/$defs/boundedString"},
+        "points": {"type": "integer", "minimum": 0, "maximum": 10000},
+        "icon": {"$ref": "#/$defs/boundedString"},
+        "author": {"$ref": "#/$defs/boundedString"},
+        "category": {"$ref": "#/$defs/boundedString"},
+        "secret": {"type": "boolean", "default": false},
+        "missable": {"type": "boolean", "default": false},
+        "tags": {"oneOf": [{"type": "string"}, {"type": "array", "items": {"$ref": "#/$defs/boundedString"}}]},
+        "prerequisites": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "trigger": {"$ref": "#/$defs/condition"},
+        "imported": {"type": "object"}
+      }
+    },
+    "testScenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "frames", "expectUnlocked"],
+      "properties": {
+        "name": {"$ref": "#/$defs/boundedString"},
+        "frames": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["values"],
+            "properties": {"timeMs": {"type": "integer", "minimum": 0}, "values": {"type": "object"}}
+          }
+        },
+        "expectUnlocked": {"type": "array", "items": {"$ref": "#/$defs/identifier"}},
+        "expectLocked": {"type": "array", "items": {"$ref": "#/$defs/identifier"}},
+        "expectProgress": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}}
+      }
+    }
+  }
+}

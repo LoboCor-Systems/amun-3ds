@@ -1,0 +1,24 @@
+Author: AMUN contributors
+
+Version:
+  Major: 0
+  Minor: 1
+  Revision: 0
+
+# A zero/empty target list lets Luma select this as default.3gx. AMUN performs a
+# second, full 64-bit Title-ID gate against /amun/packs/<TID>/game.amunpack.
+Targets:
+  - 0
+
+Title: AMUN
+Summary: Read-only local achievement observer
+Description: |
+  AMUN monitors explicitly supported native 3DS games for achievement events.
+  This conservative build contains no game-memory write API and no networking.
+
+Compatibility: Console
+MemorySize: 5MiB
+EventsSelfManaged: false
+SwapNotNeeded: false
+UsePrivateMemory: false
+AllowHomebrewLoad: false

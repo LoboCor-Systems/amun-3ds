@@ -1,0 +1,22 @@
+diff --git a/Library/source/CTRPluginFrameworkImpl/Preferences.cpp b/Library/source/CTRPluginFrameworkImpl/Preferences.cpp
+index c73cb75..65962e2 100644
+--- a/Library/source/CTRPluginFrameworkImpl/Preferences.cpp
++++ b/Library/source/CTRPluginFrameworkImpl/Preferences.cpp
+@@ -11,7 +11,7 @@ namespace CTRPluginFramework
+     BMPImage *  Preferences::topBackgroundImage = nullptr;
+     BMPImage *  Preferences::bottomBackgroundImage = nullptr;
+ 
+-    u32         Preferences::MenuHotkeys = static_cast<u32>(Key::Select);
++    u32         Preferences::MenuHotkeys = static_cast<u32>(Key::L | Key::Select);
+     u64         Preferences::Flags = 0;
+     LCDBacklight Preferences::Backlights[2];
+     FwkSettings Preferences::Settings;
+@@ -148,7 +148,7 @@ namespace CTRPluginFramework
+ 
+         // Check for hotkeys to be valid
+         if (MenuHotkeys == 0)
+-            MenuHotkeys = Key::Select;
++            MenuHotkeys = static_cast<u32>(Key::L | Key::Select);
+     }
+ 
+     void    Preferences::LoadSavedEnabledCheats(void)

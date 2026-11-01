@@ -1,0 +1,361 @@
+{
+  "schema": 1,
+  "profile": {
+    "version": "0.2.0-hardware-candidate",
+    "license": "CC0-1.0",
+    "authors": [
+      "AMUN contributors"
+    ],
+    "provenance": "Original AMUN coin subset; not an official RetroAchievements set. Old 2DS read-only evidence: build 2112 showed 0 -> 6 matching Mario Kart Channel on 2026-09-02. Build 3152 at exact fingerprint 2BE03E4B read 30 at 0x1413C540 on 2026-09-10, matching the user's visible total. Restart/second-save stability and this plugin/pack's physical unlock remain pending.",
+    "integrity": "live_unverified"
+  },
+  "game": {
+    "platform": "3ds",
+    "titleId": "0004000000030700",
+    "name": "Mario Kart 7",
+    "builds": [
+      {
+        "id": "mk7-eur-rev2-2112",
+        "region": "EUR",
+        "applicationVersion": "2112",
+        "updateVersion": "",
+        "codeFingerprint": "live-text-crc32-v1:004EC000:04F718AE",
+        "compatible": false
+      },
+      {
+        "id": "mk7-eur-3152",
+        "region": "EUR",
+        "applicationVersion": "3152",
+        "updateVersion": "",
+        "codeFingerprint": "live-text-crc32-v1:004EC000:2BE03E4B",
+        "compatible": false
+      }
+    ]
+  },
+  "symbols": {
+    "save.total_coins": {
+      "type": "u32",
+      "poll": "slow",
+      "resolver": {
+        "kind": "absolute",
+        "address": "0x1413C540"
+      }
+    }
+  },
+  "assets": {},
+  "achievements": [
+    {
+      "id": "pocket_change",
+      "title": "Pocket Change",
+      "description": "Increase your lifetime coin total through normal play.",
+      "points": 5,
+      "trigger": {
+        "op": "increased",
+        "symbol": "save.total_coins"
+      },
+      "author": "AMUN",
+      "category": "collection",
+      "tags": [
+        "coins",
+        "hardware-candidate"
+      ],
+      "secret": false,
+      "missable": false,
+      "prerequisites": []
+    },
+    {
+      "id": "coins_25",
+      "title": "Small Savings",
+      "description": "Reach 25 lifetime coins.",
+      "points": 5,
+      "trigger": {
+        "op": "set_progress",
+        "symbol": "save.total_coins",
+        "target": 25
+      },
+      "author": "AMUN",
+      "category": "collection",
+      "tags": [
+        "coins",
+        "hardware-candidate"
+      ],
+      "secret": false,
+      "missable": false,
+      "prerequisites": []
+    },
+    {
+      "id": "coins_100",
+      "title": "A Hundred Little Boosts",
+      "description": "Reach 100 lifetime coins.",
+      "points": 5,
+      "trigger": {
+        "op": "set_progress",
+        "symbol": "save.total_coins",
+        "target": 100
+      },
+      "author": "AMUN",
+      "category": "collection",
+      "tags": [
+        "coins",
+        "hardware-candidate"
+      ],
+      "secret": false,
+      "missable": false,
+      "prerequisites": []
+    },
+    {
+      "id": "coins_500",
+      "title": "The Kart Fund",
+      "description": "Reach 500 lifetime coins.",
+      "points": 10,
+      "trigger": {
+        "op": "set_progress",
+        "symbol": "save.total_coins",
+        "target": 500
+      },
+      "author": "AMUN",
+      "category": "collection",
+      "tags": [
+        "coins",
+        "hardware-candidate"
+      ],
+      "secret": false,
+      "missable": false,
+      "prerequisites": []
+    },
+    {
+      "id": "coins_1000",
+      "title": "Four-Digit Garage",
+      "description": "Reach 1,000 lifetime coins.",
+      "points": 10,
+      "trigger": {
+        "op": "set_progress",
+        "symbol": "save.total_coins",
+        "target": 1000
+      },
+      "author": "AMUN",
+      "category": "collection",
+      "tags": [
+        "coins",
+        "hardware-candidate"
+      ],
+      "secret": false,
+      "missable": false,
+      "prerequisites": []
+    }
+  ],
+  "tests": [
+    {
+      "name": "zero remains zero",
+      "frames": [
+        {
+          "timeMs": 0,
+          "values": {
+            "save.total_coins": 0
+          }
+        },
+        {
+          "timeMs": 1000,
+          "values": {
+            "save.total_coins": 0
+          }
+        }
+      ],
+      "expectUnlocked": []
+    },
+    {
+      "name": "normal first coins",
+      "frames": [
+        {
+          "timeMs": 0,
+          "values": {
+            "save.total_coins": 0
+          }
+        },
+        {
+          "timeMs": 1000,
+          "values": {
+            "save.total_coins": 6
+          }
+        }
+      ],
+      "expectUnlocked": [
+        "pocket_change"
+      ]
+    },
+    {
+      "name": "current 30 earns only existing milestone",
+      "frames": [
+        {
+          "timeMs": 0,
+          "values": {
+            "save.total_coins": 30
+          }
+        },
+        {
+          "timeMs": 1000,
+          "values": {
+            "save.total_coins": 30
+          }
+        }
+      ],
+      "expectUnlocked": [
+        "coins_25"
+      ]
+    },
+    {
+      "name": "current 30 then a new coin",
+      "frames": [
+        {
+          "timeMs": 0,
+          "values": {
+            "save.total_coins": 30
+          }
+        },
+        {
+          "timeMs": 1000,
+          "values": {
+            "save.total_coins": 31
+          }
+        }
+      ],
+      "expectUnlocked": [
+        "pocket_change",
+        "coins_25"
+      ]
+    },
+    {
+      "name": "25 threshold",
+      "frames": [
+        {
+          "timeMs": 0,
+          "values": {
+            "save.total_coins": 24
+          }
+        },
+        {
+          "timeMs": 1000,
+          "values": {
+            "save.total_coins": 25
+          }
+        }
+      ],
+      "expectUnlocked": [
+        "pocket_change",
+        "coins_25"
+      ]
+    },
+    {
+      "name": "100 threshold",
+      "frames": [
+        {
+          "timeMs": 0,
+          "values": {
+            "save.total_coins": 99
+          }
+        },
+        {
+          "timeMs": 1000,
+          "values": {
+            "save.total_coins": 100
+          }
+        }
+      ],
+      "expectUnlocked": [
+        "pocket_change",
+        "coins_25",
+        "coins_100"
+      ]
+    },
+    {
+      "name": "500 threshold",
+      "frames": [
+        {
+          "timeMs": 0,
+          "values": {
+            "save.total_coins": 499
+          }
+        },
+        {
+          "timeMs": 1000,
+          "values": {
+            "save.total_coins": 500
+          }
+        }
+      ],
+      "expectUnlocked": [
+        "pocket_change",
+        "coins_25",
+        "coins_100",
+        "coins_500"
+      ]
+    },
+    {
+      "name": "1000 threshold",
+      "frames": [
+        {
+          "timeMs": 0,
+          "values": {
+            "save.total_coins": 999
+          }
+        },
+        {
+          "timeMs": 1000,
+          "values": {
+            "save.total_coins": 1000
+          }
+        }
+      ],
+      "expectUnlocked": [
+        "pocket_change",
+        "coins_25",
+        "coins_100",
+        "coins_500",
+        "coins_1000"
+      ]
+    },
+    {
+      "name": "existing full total does not synthesize collection",
+      "frames": [
+        {
+          "timeMs": 0,
+          "values": {
+            "save.total_coins": 1000
+          }
+        },
+        {
+          "timeMs": 1000,
+          "values": {
+            "save.total_coins": 1000
+          }
+        }
+      ],
+      "expectUnlocked": [
+        "coins_25",
+        "coins_100",
+        "coins_500",
+        "coins_1000"
+      ]
+    },
+    {
+      "name": "decrease is not collection",
+      "frames": [
+        {
+          "timeMs": 0,
+          "values": {
+            "save.total_coins": 30
+          }
+        },
+        {
+          "timeMs": 1000,
+          "values": {
+            "save.total_coins": 29
+          }
+        }
+      ],
+      "expectUnlocked": [
+        "coins_25"
+      ]
+    }
+  ]
+}

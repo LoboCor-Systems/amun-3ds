@@ -1,0 +1,47 @@
+name: Compatibility report
+description: Tell us how AMUN behaved on your console and game.
+labels: ["compatibility"]
+body:
+  - type: markdown
+    attributes:
+      value: "Thank you. This is the most useful report you can send. Please read docs/SAFETY.md first."
+  - type: dropdown
+    id: model
+    attributes:
+      label: Console model
+      options: ["Original 3DS", "3DS XL", "2DS (wedge)", "New 3DS", "New 3DS XL", "New 2DS XL"]
+    validations:
+      required: true
+  - type: input
+    id: luma
+    attributes:
+      label: Luma3DS version
+      placeholder: "v13.4"
+    validations:
+      required: true
+  - type: input
+    id: game
+    attributes:
+      label: Game, region and version
+      placeholder: "Mario Kart 7, EUR, 3152"
+    validations:
+      required: true
+  - type: input
+    id: amun
+    attributes:
+      label: AMUN release and set
+      placeholder: "v0.2.0-preview, mario-kart-7-eur"
+    validations:
+      required: true
+  - type: dropdown
+    id: result
+    attributes:
+      label: What happened?
+      options: ["Works: goals unlocked", "Loads but nothing unlocked", "Game ran slowly", "Game crashed", "Plugin did not load", "Other"]
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: "Which goals unlocked or failed? Did the trophy badge and toast appear? Paste the last lines of /amun/logs/platform.log (including any `perf:` lines)."

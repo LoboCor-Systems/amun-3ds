@@ -1,0 +1,50 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": { "major": 3, "minor": 20, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "host-debug",
+      "displayName": "AMUN host Debug",
+      "generator": "Visual Studio 17 2022",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/build/host-debug",
+      "cacheVariables": {
+        "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
+        "AMUN_BUILD_TESTS": "ON",
+        "AMUN_BUILD_TOOLS": "ON",
+        "AMUN_BUILD_3DS_PLATFORM_TESTS": "ON"
+      }
+    },
+    {
+      "name": "host-ninja",
+      "displayName": "AMUN host Ninja",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/host-ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "AMUN_BUILD_TESTS": "ON",
+        "AMUN_BUILD_TOOLS": "ON",
+        "AMUN_BUILD_3DS_PLATFORM_TESTS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "host-debug", "configurePreset": "host-debug", "configuration": "Debug" },
+    { "name": "host-release", "configurePreset": "host-debug", "configuration": "Release" },
+    { "name": "host-ninja", "configurePreset": "host-ninja" }
+  ],
+  "testPresets": [
+    {
+      "name": "host-debug",
+      "configurePreset": "host-debug",
+      "configuration": "Debug",
+      "output": { "outputOnFailure": true }
+    },
+    {
+      "name": "host-ninja",
+      "configurePreset": "host-ninja",
+      "output": { "outputOnFailure": true }
+    }
+  ]
+}
+

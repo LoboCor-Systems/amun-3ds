@@ -1,0 +1,6 @@
+# Rename this file on the SD card to /amun/config/self-test.flag to opt in.
+#
+# With no exact-title pack installed, AMUN will show a platform-only self-test for
+# native 00040000 titles. It performs zero game-memory reads and no unlocks. It tests
+# the monotonic clock, CTRPF menu/input delivery, and a temporary AMUN-owned ledger,
+# then removes that scratch ledger. Remove self-test.flag when finished.

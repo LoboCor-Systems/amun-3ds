@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+set -eu
+repo=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+exec python3 "$repo/scripts/package-release.py" "$@"
